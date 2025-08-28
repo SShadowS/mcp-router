@@ -13,6 +13,9 @@ export { getDatabaseMigration } from "./migrations/database-migration";
 import { getSqliteManager } from "./core/sqlite-manager";
 import { RepositoryFactory } from "./factories/repository-factory";
 
+// Export getSqliteManager for direct database access
+export { getSqliteManager };
+
 // Backwards compatibility functions using RepositoryFactory
 export function getAgentRepository() {
   const db = getSqliteManager("mcprouter");
@@ -85,4 +88,9 @@ export function resetWorkspaceRepository() {
 export function getHookRepository() {
   const db = getSqliteManager("mcprouter");
   return RepositoryFactory.getHookRepository(db);
+}
+
+export function getServerToolsRepository() {
+  const db = getSqliteManager("mcprouter");
+  return RepositoryFactory.getServerToolsRepository(db);
 }

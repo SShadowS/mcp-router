@@ -15,6 +15,7 @@ import { LoggingService } from "./logging";
 import { ServerManager } from "./server-manager";
 import { TokenValidator } from "./token-validator";
 import { getHookService } from "@/main/domain/mcp-core/hook/hook-service";
+import { getToolFilterService } from "@/main/domain/mcp-core/tool/tool-filter-service";
 
 /**
  * Handles all request processing for the aggregator server
@@ -76,6 +77,33 @@ export class RequestHandlers {
     const originalToolName = toolName;
 
     const token = request.params._meta?.token as string | undefined;
+
+    // Check if the tool is enabled (get clientId for client-specific filtering)
+    const toolServerId = this.getServerIdByName(serverName);
+    if (toolServerId && serverName !== "Agent Tools") {
+      // Get clientId from token for client-specific filtering
+      let clientIdForFilter: string | undefined;
+      if (token) {
+        try {
+          const validation = this.tokenValidator.validateToken(token);
+          clientIdForFilter = validation.clientId;
+        } catch {}
+      }
+
+      const toolFilterService = getToolFilterService();
+      if (
+        !toolFilterService.isToolEnabled(
+          toolServerId,
+          originalToolName,
+          clientIdForFilter,
+        )
+      ) {
+        throw new McpError(
+          ErrorCode.InvalidRequest,
+          `Tool ${toolName} is disabled`,
+        );
+      }
+    }
 
     // Check if this is an agent tool first
     if (serverName === "Agent Tools") {
@@ -217,6 +245,15 @@ export class RequestHandlers {
     // Clear the existing tool-to-server mapping
     this.toolNameToServerMap.clear();
 
+    // Get clientId from token for client-specific filtering
+    let clientIdForFilter: string | undefined;
+    if (token) {
+      try {
+        const validation = this.tokenValidator.validateToken(token);
+        clientIdForFilter = validation.clientId;
+      } catch {}
+    }
+
     // Add agent tools
     // this.addAgentsAsTools(allTools); // Agent tools removed
 
@@ -236,16 +273,52 @@ export class RequestHandlers {
 
       const response = await client.listTools();
 
+      // Debug: Log the raw response structure
+      console.log(
+        "[RequestHandlers] Raw listTools response:",
+        JSON.stringify(response, null, 2),
+      );
+
       if (response && Array.isArray(response.tools)) {
+        // Debug: Log first tool structure if available
+        if (response.tools.length > 0) {
+          console.log(
+            "[RequestHandlers] First tool structure:",
+            JSON.stringify(response.tools[0], null, 2),
+          );
+        }
+
+        // Initialize tool preferences if needed
+        const toolFilterService = getToolFilterService();
+        toolFilterService.initializeServerTools(serverId, response.tools);
+
         response.tools.forEach((tool) => {
+          // Check if tool is enabled (with client-specific preferences)
+          if (
+            !toolFilterService.isToolEnabled(
+              serverId,
+              tool.name,
+              clientIdForFilter,
+            )
+          ) {
+            return; // Skip disabled tools
+          }
+
           // Store mapping from tool name to server name
           this.toolNameToServerMap.set(tool.name, server.name);
+
+          // Get tool preference for custom name/description (with client-specific preferences)
+          const preference = toolFilterService.getToolPreference(
+            serverId,
+            tool.name,
+            clientIdForFilter,
+          );
 
           // Apply display rules to name and description
           const { name: customName, description: customDescription } =
             applyDisplayRules(
-              tool.name,
-              tool.description || "",
+              preference?.customName || tool.name,
+              preference?.customDescription || tool.description || "",
               server.name,
               "tool",
             );
@@ -268,6 +341,10 @@ export class RequestHandlers {
             inputSchema: customInputSchema,
           });
         });
+
+        // Clean up removed tools
+        const currentToolNames = response.tools.map((t) => t.name);
+        toolFilterService.cleanupRemovedTools(serverId, currentToolNames);
       }
     }
 

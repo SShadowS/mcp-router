@@ -9,6 +9,7 @@ import {
   IconDownload,
   IconFileText,
   IconWebhook,
+  IconUsers,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore, useWorkspaceStore } from "@/renderer/stores";
@@ -212,11 +213,27 @@ const SidebarComponent: React.FC = () => {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
-                      tooltip={t("mcpApps.title")}
+                      tooltip={t("clients.title", "Clients")}
                       isActive={location.pathname === "/clients"}
                     >
                       <Link
                         to="/clients"
+                        className="flex items-center gap-3 py-5 px-3 w-full"
+                      >
+                        <IconUsers className="h-6 w-6" />
+                        <span className="text-base">{t("clients.title", "Clients")}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={t("mcpApps.title")}
+                      isActive={location.pathname === "/apps"}
+                    >
+                      <Link
+                        to="/apps"
                         className="flex items-center gap-3 py-5 px-3 w-full"
                       >
                         <IconDeviceDesktop className="h-6 w-6" />

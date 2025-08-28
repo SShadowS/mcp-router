@@ -9,6 +9,11 @@ import {
   AgentConfig,
   DeployedAgent,
   CreateServerInput,
+  Client,
+  ClientWithTokens,
+  ClientCreateDto,
+  ClientUpdateDto,
+  Token,
 } from "@mcp_router/shared";
 import { McpAppsManagerResult, McpApp } from "@/main/domain/mcp-apps-service";
 import { ServerPackageUpdates } from "./lib/utils/backend/package-version-resolver";
@@ -235,6 +240,35 @@ declare global {
       deleteHook: (id: string) => Promise<boolean>;
       setHookEnabled: (id: string, enabled: boolean) => Promise<any>;
       reorderHooks: (hookIds: string[]) => Promise<any[]>;
+
+      // Tool Management
+      getServerTools: (serverId: string, clientId?: string) => Promise<any[]>;
+      getToolStatistics: (serverId: string, clientId?: string) => Promise<any>;
+      updateToolPreference: (serverId: string, preference: any, clientId?: string) => Promise<any>;
+      bulkUpdateTools: (update: { serverId: string; clientId?: string; updates: any[] }) => Promise<any[]>;
+      enableAllTools: (serverId: string, clientId?: string) => Promise<void>;
+      disableAllTools: (serverId: string, clientId?: string) => Promise<void>;
+      resetToolPreferences: (serverId: string, clientId?: string) => Promise<boolean>;
+      isToolEnabled: (serverId: string, toolName: string, clientId?: string) => Promise<boolean>;
+      getAvailableTools: (serverId: string, clientId?: string) => Promise<any[]>;
+
+      // Client Management
+      listClients: () => Promise<ClientWithTokens[]>;
+      getClient: (id: string) => Promise<ClientWithTokens | null>;
+      createClient: (dto: ClientCreateDto) => Promise<ClientWithTokens>;
+      updateClient: (id: string, dto: ClientUpdateDto) => Promise<ClientWithTokens>;
+      deleteClient: (id: string) => Promise<void>;
+      getClientStats: () => Promise<{
+        totalClients: number;
+        activeClients: number;
+        totalTokens: number;
+        activeTokens: number;
+      }>;
+
+      // Token Management (for clients)
+      generateToken: (params: { clientId: string; serverIds?: string[] }) => Promise<Token>;
+      revokeToken: (tokenId: string) => Promise<void>;
+      getClientTokens: (clientId: string) => Promise<Token[]>;
     };
   }
 }

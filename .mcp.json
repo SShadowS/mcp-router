@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "serena": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "cd /d U:\\Git\\serena && uv run serena start-mcp-server --context ide-assistant --project U:\\Git\\mcp-router"
+      ],
+      "env": {}
+    }
+  }
+}

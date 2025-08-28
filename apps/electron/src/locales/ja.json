@@ -745,5 +745,30 @@
     "success": {
       "imported": "ルールをインポートしました"
     }
+  },
+  "tools": {
+    "manageTools": "ツール管理",
+    "description": "このサーバーのツールを個別に有効/無効化",
+    "total": "合計",
+    "enabled": "有効",
+    "disabled": "無効",
+    "customized": "カスタマイズ済み",
+    "searchPlaceholder": "ツールを検索...",
+    "enableAll": "すべて有効化",
+    "disableAll": "すべて無効化",
+    "reset": "リセット",
+    "all": "すべて",
+    "modified": "変更済み",
+    "noDescription": "説明がありません",
+    "pendingChanges": "{{count}}件の保留中の変更",
+    "loadError": "ツールの読み込みに失敗しました",
+    "saveSuccess": "ツール設定を保存しました",
+    "changesSaved": "{{count}}件のツール設定を更新しました",
+    "saveError": "ツール設定の保存に失敗しました",
+    "resetConfirm": "このサーバーのすべてのツール設定をリセットしてもよろしいですか？",
+    "resetSuccess": "ツール設定をリセットしました",
+    "resetError": "ツール設定のリセットに失敗しました",
+    "noSearchResults": "検索条件に一致するツールが見つかりません",
+    "noTools": "このサーバーには利用可能なツールがありません"
   }
 }

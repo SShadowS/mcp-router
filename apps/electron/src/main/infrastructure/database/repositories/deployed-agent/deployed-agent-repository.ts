@@ -36,10 +36,10 @@ export class DeployedAgentRepository extends BaseRepository<DeployedAgent> {
         });
       }
 
-      console.log("[DeployedAgentRepository] テーブルの初期化が完了しました");
+      console.log("[DeployedAgentRepository] Table initialization completed");
     } catch (error) {
       console.error(
-        "[DeployedAgentRepository] テーブルの初期化中にエラー:",
+        "[DeployedAgentRepository] Error during table initialization:",
         error,
       );
       throw error;

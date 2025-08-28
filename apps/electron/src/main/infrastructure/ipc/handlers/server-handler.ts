@@ -5,6 +5,9 @@ import {
   fetchMcpServerVersionDetails,
 } from "@/main/application/mcp-core/registry/mcp-fetcher";
 import { processDxtFile } from "@/main/application/mcp-core/server-processors/dxt-processor";
+import { getToolFilterService } from "@/main/domain/mcp-core/tool/tool-filter-service";
+import { fetchToolsFromRunningServer } from "./tool-fetch-helper";
+import { logInfo, logError } from "@/main/utils/logger";
 
 export function setupMcpServerHandlers(): void {
   const getMCPServerManager = () => (global as any).getMCPServerManager();
@@ -17,6 +20,42 @@ export function setupMcpServerHandlers(): void {
   ipcMain.handle("mcp:start", async (_, id: string) => {
     const mcpServerManager = getMCPServerManager();
     const result = await mcpServerManager.startServer(id, "MCP Router UI");
+
+    // If server started successfully, fetch and initialize tools
+    if (result) {
+      try {
+        const servers = mcpServerManager.getServers();
+        const server = servers.find((s: any) => s.id === id);
+
+        if (server && server.status === "running") {
+          logInfo(
+            `Server ${server.name} started successfully, fetching tools...`,
+          );
+
+          const tools = await fetchToolsFromRunningServer(id, server.name);
+
+          if (tools.length > 0) {
+            logInfo(`Fetched ${tools.length} tools from server ${server.name}`);
+
+            // Initialize tool preferences for new tools
+            const toolFilterService = getToolFilterService();
+            toolFilterService.initializeServerTools(id, tools);
+
+            // Clean up removed tools
+            const currentToolNames = tools.map((t) => t.name);
+            toolFilterService.cleanupRemovedTools(id, currentToolNames);
+
+            logInfo(`Tool preferences initialized for server ${server.name}`);
+          } else {
+            logInfo(`No tools found for server ${server.name}`);
+          }
+        }
+      } catch (error) {
+        logError(`Failed to fetch tools after server start`, error);
+        // Don't fail the server start operation if tool fetch fails
+      }
+    }
+
     return result;
   });
 

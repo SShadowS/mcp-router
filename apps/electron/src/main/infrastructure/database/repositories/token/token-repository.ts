@@ -35,9 +35,12 @@ export class TokenRepository extends BaseRepository<Token> {
         });
       }
 
-      console.log("[TokenRepository] テーブルの初期化が完了しました");
+      console.log("[TokenRepository] Table initialization completed");
     } catch (error) {
-      console.error("[TokenRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[TokenRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

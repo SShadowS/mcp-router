@@ -4,16 +4,16 @@ import { TokenScope, Migration } from "@mcp_router/shared";
 import { safeStorage } from "electron";
 
 /**
- * データベースマイグレーション管理クラス
- * 全てのマイグレーションを一元管理
+ * Database migration management class
+ * Centrally manages all migrations
  */
 export class DatabaseMigration {
   private static instance: DatabaseMigration | null = null;
-  // 登録されたマイグレーションリスト（順序付き）
+  // Registered migration list (ordered)
   private migrations: Migration[] = [];
 
   /**
-   * シングルトンインスタンスを取得
+   * Get singleton instance
    */
   public static getInstance(): DatabaseMigration {
     if (!DatabaseMigration.instance) {
@@ -23,19 +23,19 @@ export class DatabaseMigration {
   }
 
   /**
-   * コンストラクタ - マイグレーションを登録
+   * Constructor - register migrations
    */
   private constructor() {
-    // マイグレーションを実行順に登録
+    // Register migrations in execution order
     this.registerMigrations();
   }
 
   /**
-   * 実行すべき全てのマイグレーションを登録
-   * 新しいマイグレーションを追加する場合はここに追加する
+   * Register all migrations to be executed
+   * Add new migrations here
    */
   private registerMigrations(): void {
-    // ServerRepository関連のマイグレーション
+    // ServerRepository-related migrations
     this.migrations.push({
       id: "20250601_add_server_type_column",
       description: "Add server_type column to servers table",
@@ -90,7 +90,7 @@ export class DatabaseMigration {
       execute: (db) => this.migrateAddRequiredParamsColumn(db),
     });
 
-    // AgentRepository関連のマイグレーション: エージェントテーブルの管理
+    // AgentRepository-related migrations: agent table management
     this.migrations.push({
       id: "20250526_agent_table_management",
       description:
@@ -98,7 +98,7 @@ export class DatabaseMigration {
       execute: (db) => this.migrateAgentTableManagement(db),
     });
 
-    // TokenRepository関連のマイグレーション
+    // TokenRepository-related migrations
     this.migrations.push({
       id: "20250511_add_scopes_to_tokens",
       description:
@@ -106,35 +106,35 @@ export class DatabaseMigration {
       execute: (db) => this.migrateTokensAddScopes(db),
     });
 
-    // データ暗号化マイグレーション
+    // Data encryption migration
     this.migrations.push({
       id: "20250513_encrypt_server_data",
       description: "Encrypt server sensitive data",
       execute: (db) => this.migrateToEncryption(db),
     });
 
-    // DeployedAgent original_id カラム追加
+    // Add DeployedAgent original_id column
     this.migrations.push({
       id: "20250602_add_original_id_to_deployed_agents",
       description: "Add original_id column to deployedAgents table",
       execute: (db) => this.migrateAddOriginalIdToDeployedAgents(db),
     });
 
-    // DeployedAgent mcp_server_enabled カラム追加
+    // Add DeployedAgent mcp_server_enabled column
     this.migrations.push({
       id: "20250610_add_mcp_server_enabled_to_deployed_agents",
       description: "Add mcp_server_enabled column to deployedAgents table",
       execute: (db) => this.migrateAddMcpServerEnabledToDeployedAgents(db),
     });
 
-    // ChatSessions テーブルの更新: status/source追加
+    // Update ChatSessions table: add status/source
     this.migrations.push({
       id: "20250614_update_chat_sessions_schema",
       description: "Update chat_sessions table: add status/source columns",
       execute: (db) => this.migrateUpdateChatSessionsSchema(db),
     });
 
-    // トークンテーブルをメインDBに確実に作成
+    // Ensure tokens table exists in main DB
     this.migrations.push({
       id: "20250627_ensure_tokens_table_in_main_db",
       description:
@@ -142,28 +142,43 @@ export class DatabaseMigration {
       execute: (db) => this.migrateEnsureTokensTableInMainDb(db),
     });
 
-    // Hooksテーブルを追加
+    // Add hooks table
     this.migrations.push({
       id: "20250805_add_hooks_table",
       description: "Add hooks table for MCP request/response hooks",
       execute: (db) => this.migrateAddHooksTable(db),
     });
+
+    // Server tools table
+    this.migrations.push({
+      id: "20250828_initialize_server_tools_table",
+      description: "Initialize server_tools table for tool management",
+      execute: (db) => this.migrateInitializeServerToolsTable(db),
+    });
+
+    // Add client_id column to server_tools table for client-specific preferences
+    this.migrations.push({
+      id: "20250829_add_client_id_to_server_tools",
+      description:
+        "Add client_id column to server_tools table for client-specific tool preferences",
+      execute: (db) => this.migrateAddClientIdToServerTools(db),
+    });
   }
 
   /**
-   * 全てのマイグレーションを実行
+   * Execute all migrations
    */
   public runMigrations(): void {
     try {
       const db = getSqliteManager();
 
-      // マイグレーション管理テーブルの初期化
+      // Initialize migration management table
       this.initMigrationTable();
 
-      // 実行済みマイグレーションを取得
+      // Get completed migrations
       const completedMigrations = this.getCompletedMigrations();
 
-      // 各マイグレーションを実行（実行済みのものはスキップ）
+      // Execute each migration (skip completed ones)
       for (const migration of this.migrations) {
         // 既に実行済みの場合はスキップ
         if (completedMigrations.has(migration.id)) {
@@ -894,6 +909,182 @@ export class DatabaseMigration {
         "hooksテーブルのマイグレーション中にエラーが発生しました:",
         error,
       );
+      throw error;
+    }
+  }
+
+  /**
+   * server_toolsテーブルを初期化するマイグレーション
+   */
+  private migrateInitializeServerToolsTable(db: SqliteManager): void {
+    try {
+      // Check if table exists
+      const tableExists = db.get(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='server_tools'",
+      );
+
+      if (!tableExists) {
+        console.log("Creating server_tools table...");
+
+        // Create the server_tools table
+        db.exec(`
+          CREATE TABLE IF NOT EXISTS server_tools (
+            id TEXT PRIMARY KEY,
+            server_id TEXT NOT NULL,
+            tool_name TEXT NOT NULL,
+            enabled INTEGER NOT NULL DEFAULT 1,
+            original_description TEXT,
+            custom_name TEXT,
+            custom_description TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+            UNIQUE(server_id, tool_name)
+          )
+        `);
+
+        // Create indexes
+        db.exec(
+          "CREATE INDEX IF NOT EXISTS idx_server_tools_server_id ON server_tools(server_id)",
+        );
+        db.exec(
+          "CREATE INDEX IF NOT EXISTS idx_server_tools_enabled ON server_tools(enabled)",
+        );
+
+        console.log("server_tools table created successfully");
+      } else {
+        console.log(
+          "server_tools table already exists, checking for missing columns...",
+        );
+
+        // Check if original_description column exists
+        const columns = db.all("PRAGMA table_info(server_tools)") as Array<{
+          name: string;
+        }>;
+
+        const columnNames = columns.map((col) => col.name);
+
+        // Add original_description column if it doesn't exist
+        if (!columnNames.includes("original_description")) {
+          console.log("Adding missing original_description column...");
+          db.exec(
+            "ALTER TABLE server_tools ADD COLUMN original_description TEXT",
+          );
+          console.log("original_description column added successfully");
+        }
+
+        // Add custom_name column if it doesn't exist
+        if (!columnNames.includes("custom_name")) {
+          console.log("Adding missing custom_name column...");
+          db.exec("ALTER TABLE server_tools ADD COLUMN custom_name TEXT");
+          console.log("custom_name column added successfully");
+        }
+
+        // Add custom_description column if it doesn't exist
+        if (!columnNames.includes("custom_description")) {
+          console.log("Adding missing custom_description column...");
+          db.exec(
+            "ALTER TABLE server_tools ADD COLUMN custom_description TEXT",
+          );
+          console.log("custom_description column added successfully");
+        }
+      }
+    } catch (error) {
+      console.error("Error during server_tools table migration:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add client_id column to server_tools table for client-specific tool preferences
+   */
+  private migrateAddClientIdToServerTools(db: SqliteManager): void {
+    try {
+      // Check if table exists
+      const tableExists = db.get(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='server_tools'",
+      );
+
+      if (!tableExists) {
+        console.log(
+          "server_tools table doesn't exist, skipping client_id migration",
+        );
+        return;
+      }
+
+      // Get table info
+      const columns = db.all("PRAGMA table_info(server_tools)") as Array<{
+        name: string;
+      }>;
+
+      const columnNames = columns.map((col) => col.name);
+
+      // Add client_id column if it doesn't exist
+      if (!columnNames.includes("client_id")) {
+        console.log("Adding client_id column to server_tools table...");
+
+        // Add the column
+        db.exec("ALTER TABLE server_tools ADD COLUMN client_id TEXT");
+
+        // Drop old unique constraint and create new one
+        // SQLite doesn't support DROP CONSTRAINT, so we need to recreate the table
+        console.log("Updating unique constraint to include client_id...");
+
+        // Create temporary table with new schema
+        db.exec(`
+          CREATE TABLE server_tools_new (
+            id TEXT PRIMARY KEY,
+            server_id TEXT NOT NULL,
+            tool_name TEXT NOT NULL,
+            client_id TEXT,
+            enabled INTEGER NOT NULL DEFAULT 1,
+            original_description TEXT,
+            custom_name TEXT,
+            custom_description TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+            UNIQUE(server_id, tool_name, client_id)
+          )
+        `);
+
+        // Copy data from old table
+        db.exec(`
+          INSERT INTO server_tools_new (
+            id, server_id, tool_name, client_id, enabled, 
+            original_description, custom_name, custom_description, 
+            created_at, updated_at
+          )
+          SELECT 
+            id, server_id, tool_name, NULL, enabled, 
+            original_description, custom_name, custom_description, 
+            created_at, updated_at
+          FROM server_tools
+        `);
+
+        // Drop old table and rename new one
+        db.exec("DROP TABLE server_tools");
+        db.exec("ALTER TABLE server_tools_new RENAME TO server_tools");
+
+        // Recreate indexes
+        db.exec(
+          "CREATE INDEX IF NOT EXISTS idx_server_tools_server_id ON server_tools(server_id)",
+        );
+        db.exec(
+          "CREATE INDEX IF NOT EXISTS idx_server_tools_enabled ON server_tools(enabled)",
+        );
+        db.exec(
+          "CREATE INDEX IF NOT EXISTS idx_server_tools_client_id ON server_tools(client_id)",
+        );
+
+        console.log(
+          "client_id column and new unique constraint added successfully",
+        );
+      } else {
+        console.log("client_id column already exists, skipping migration");
+      }
+    } catch (error) {
+      console.error("Error adding client_id column to server_tools:", error);
       throw error;
     }
   }

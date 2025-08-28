@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import SidebarComponent from "./Sidebar";
 import { SidebarProvider } from "@mcp_router/ui";
 import McpAppsManager from "@/renderer/components/mcp/apps/McpAppsManager";
+import ClientsPage from "@/renderer/components/ClientsPage";
 import LogViewer from "@/renderer/components/mcp/log/LogViewer";
 import Rules from "@/renderer/components/mcp/rules/Rules";
 import AgentBuild from "@/renderer/components/agent/create/AgentBuild";
@@ -233,7 +234,8 @@ const App: React.FC = () => {
               <Route path="/" element={<Navigate to="/servers" replace />} />
               <Route path="/servers" element={<Home />} />
               <Route path="/servers/add" element={<DiscoverWrapper />} />
-              <Route path="/clients" element={<McpAppsManager />} />
+              <Route path="/clients" element={<ClientsPage />} />
+              <Route path="/apps" element={<McpAppsManager />} />
               <Route path="/logs" element={<LogViewer />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/hooks" element={<HookManager />} />

@@ -36,9 +36,12 @@ export class ServerRepository extends BaseRepository<MCPServer> {
         });
       }
 
-      console.log("[ServerRepository] テーブルの初期化が完了しました");
+      console.log("[ServerRepository] Table initialization completed");
     } catch (error) {
-      console.error("[ServerRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[ServerRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

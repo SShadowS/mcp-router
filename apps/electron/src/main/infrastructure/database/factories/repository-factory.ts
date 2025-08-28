@@ -3,6 +3,7 @@ import { AgentRepository } from "../repositories/agent/agent-repository";
 import { DeployedAgentRepository } from "../repositories/deployed-agent/deployed-agent-repository";
 import { LogRepository } from "../repositories/log/log-repository";
 import { ServerRepository } from "../repositories/server/server-repository";
+import { ServerToolsRepository } from "../repositories/server/server-tools-repository";
 import { SessionRepository } from "../repositories/session/session-repository";
 import { SettingsRepository } from "../repositories/settings/settings-repository";
 import { TokenRepository } from "../repositories/token/token-repository";
@@ -17,6 +18,7 @@ type RepositoryInstances = {
   deployedAgent: DeployedAgentRepository | null;
   log: LogRepository | null;
   server: ServerRepository | null;
+  serverTools: ServerToolsRepository | null;
   session: SessionRepository | null;
   settings: SettingsRepository | null;
   token: TokenRepository | null;
@@ -34,6 +36,7 @@ export class RepositoryFactory {
     deployedAgent: null,
     log: null,
     server: null,
+    serverTools: null,
     session: null,
     settings: null,
     token: null,
@@ -60,6 +63,7 @@ export class RepositoryFactory {
       deployedAgent: null,
       log: null,
       server: null,
+      serverTools: null,
       session: null,
       settings: null,
       token: null,
@@ -232,6 +236,27 @@ export class RepositoryFactory {
     }
 
     return this.instances.hook;
+  }
+
+  /**
+   * サーバーツールリポジトリを取得
+   */
+  public static getServerToolsRepository(
+    db: SqliteManager,
+  ): ServerToolsRepository {
+    if (this.isDatabaseChanged(db)) {
+      this.resetAllInstances();
+      this.currentDb = db;
+    }
+
+    if (!this.instances.serverTools) {
+      console.log(
+        "[RepositoryFactory] Creating new ServerToolsRepository instance",
+      );
+      this.instances.serverTools = new ServerToolsRepository(db);
+    }
+
+    return this.instances.serverTools;
   }
 
   /**

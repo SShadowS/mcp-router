@@ -41,9 +41,12 @@ export class LogRepository extends BaseRepository<RequestLogEntry> {
         });
       }
 
-      console.log("[LogRepository] テーブルの初期化が完了しました");
+      console.log("[LogRepository] Table initialization completed");
     } catch (error) {
-      console.error("[LogRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[LogRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

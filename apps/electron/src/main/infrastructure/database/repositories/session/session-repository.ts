@@ -31,9 +31,12 @@ export class SessionRepository extends BaseRepository<LocalChatSession> {
         });
       }
 
-      console.log("[SessionRepository] テーブルの初期化が完了しました");
+      console.log("[SessionRepository] Table initialization completed");
     } catch (error) {
-      console.error("[SessionRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[SessionRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

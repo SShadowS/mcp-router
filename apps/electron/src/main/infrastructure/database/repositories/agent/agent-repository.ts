@@ -36,9 +36,12 @@ export class AgentRepository extends BaseRepository<AgentConfig> {
         });
       }
 
-      console.log("[AgentRepository] テーブルの初期化が完了しました");
+      console.log("[AgentRepository] Table initialization completed");
     } catch (error) {
-      console.error("[AgentRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[AgentRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

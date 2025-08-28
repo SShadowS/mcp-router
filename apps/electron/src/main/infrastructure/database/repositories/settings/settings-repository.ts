@@ -37,9 +37,12 @@ export class SettingsRepository {
         });
       }
 
-      console.log("[SettingsRepository] テーブルの初期化が完了しました");
+      console.log("[SettingsRepository] Table initialization completed");
     } catch (error) {
-      console.error("[SettingsRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[SettingsRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

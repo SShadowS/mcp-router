@@ -12,6 +12,7 @@ import {
   substituteArgsParameters,
 } from "@/main/domain/mcp-core/client/mcp-client-util";
 import { LoggingService } from "./logging";
+import { getToolFilterService } from "@/main/domain/mcp-core/tool/tool-filter-service";
 
 /**
  * Core server lifecycle management
@@ -245,6 +246,9 @@ export class ServerManager {
       clientId: clientId || "unknownClient",
     });
 
+    // Fetch and initialize tools after successful server start
+    this.fetchAndInitializeTools(id, server.name, result.client);
+
     return true;
   }
 
@@ -406,6 +410,52 @@ export class ServerManager {
       serverNameToIdMap: this.serverNameToIdMap,
       serverStatusMap: this.serverStatusMap,
     };
+  }
+
+  /**
+   * Fetch and initialize tools for a server
+   */
+  private async fetchAndInitializeTools(
+    serverId: string,
+    serverName: string,
+    client: Client,
+  ): Promise<void> {
+    try {
+      console.log(`Fetching tools for server ${serverName}...`);
+
+      // Fetch tools from the running client
+      const response = await client.listTools();
+      const tools = response.tools || [];
+
+      // Debug: Log the raw response and tool structure
+      console.log(
+        "[ServerManager] Raw listTools response:",
+        JSON.stringify(response, null, 2),
+      );
+
+      if (tools.length > 0) {
+        console.log(`Fetched ${tools.length} tools from server ${serverName}`);
+        console.log(
+          "[ServerManager] First tool structure:",
+          JSON.stringify(tools[0], null, 2),
+        );
+
+        // Initialize tool preferences for new tools
+        const toolFilterService = getToolFilterService();
+        toolFilterService.initializeServerTools(serverId, tools);
+
+        // Clean up removed tools
+        const currentToolNames = tools.map((t) => t.name);
+        toolFilterService.cleanupRemovedTools(serverId, currentToolNames);
+
+        console.log(`Tool preferences initialized for server ${serverName}`);
+      } else {
+        console.log(`No tools found for server ${serverName}`);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch tools for server ${serverName}:`, error);
+      // Don't fail the server start operation if tool fetch fails
+    }
   }
 
   /**

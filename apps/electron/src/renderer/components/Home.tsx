@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/renderer/utils/tailwind-utils";
-import { Trash, AlertCircle, Grid3X3, List } from "lucide-react";
+import { Trash, AlertCircle, Grid3X3, List, Settings2 } from "lucide-react";
 import { hasUnsetRequiredParams } from "@/renderer/utils/server-validation-utils";
 import { toast } from "sonner";
 import {
@@ -30,6 +30,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@mcp_router/ui";
 import { LoginScreen } from "@/renderer/components/auth/LoginScreen";
 import ServerDetailsAdvancedSheet from "@/renderer/components/mcp/server/server-details/ServerDetailsAdvancedSheet";
+import { ToolManagerModal } from "@/renderer/components/mcp/server/ToolManagerModal";
 import { useServerEditingStore } from "@/renderer/stores";
 
 const Home: React.FC = () => {
@@ -78,6 +79,12 @@ const Home: React.FC = () => {
   const { initializeFromServer, setIsAdvancedEditing } =
     useServerEditingStore();
 
+  // State for Tool Manager Modal
+  const [toolManagerServer, setToolManagerServer] = useState<MCPServer | null>(
+    null,
+  );
+  const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
+
   // Toggle expanded server details - open settings
   const toggleServerExpand = (serverId: string) => {
     const server = servers.find((s) => s.id === serverId);
@@ -100,6 +107,13 @@ const Home: React.FC = () => {
     e.stopPropagation();
     setErrorServer(server);
     setErrorModalOpen(true);
+  };
+
+  // Handle opening tool manager
+  const openToolManager = (server: MCPServer, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setToolManagerServer(server);
+    setIsToolManagerOpen(true);
   };
 
   // Handle server removal
@@ -325,6 +339,13 @@ const Home: React.FC = () => {
                               <AlertCircle className="h-4 w-4" />
                             </button>
                           )}
+                          <button
+                            className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-accent transition-colors"
+                            onClick={(e) => openToolManager(server, e)}
+                            title={t("tools.manageTools")}
+                          >
+                            <Settings2 className="h-4 w-4" />
+                          </button>
                           <span className="text-xs text-muted-foreground">
                             {server.status === "running"
                               ? t("serverList.status.running")
@@ -528,6 +549,19 @@ const Home: React.FC = () => {
               toast.error(t("serverDetails.updateFailed"));
             }
           }}
+        />
+      )}
+
+      {/* Tool Manager Modal */}
+      {toolManagerServer && (
+        <ToolManagerModal
+          isOpen={isToolManagerOpen}
+          onClose={() => {
+            setIsToolManagerOpen(false);
+            setToolManagerServer(null);
+          }}
+          serverId={toolManagerServer.id}
+          serverName={toolManagerServer.name}
         />
       )}
     </div>

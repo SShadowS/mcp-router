@@ -237,6 +237,20 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // System
   getPlatform: () => ipcRenderer.invoke("system:getPlatform"),
 
+  // Client Management
+  listClients: () => ipcRenderer.invoke("client:list"),
+  getClient: (id: string) => ipcRenderer.invoke("client:get", id),
+  createClient: (dto: any) => ipcRenderer.invoke("client:create", dto),
+  updateClient: (id: string, dto: any) => ipcRenderer.invoke("client:update", id, dto),
+  deleteClient: (id: string) => ipcRenderer.invoke("client:delete", id),
+  getClientStats: () => ipcRenderer.invoke("client:stats"),
+
+  // Token Management (for clients)
+  generateToken: (params: { clientId: string; serverIds?: string[] }) => 
+    ipcRenderer.invoke("token:generate", params),
+  revokeToken: (tokenId: string) => ipcRenderer.invoke("token:revoke", tokenId),
+  getClientTokens: (clientId: string) => ipcRenderer.invoke("token:listByClient", clientId),
+
   // Workspace Management
   listWorkspaces: () => ipcRenderer.invoke("workspace:list"),
   createWorkspace: (config: any) =>
@@ -267,4 +281,24 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("hook:setEnabled", id, enabled),
   reorderHooks: (hookIds: string[]) =>
     ipcRenderer.invoke("hook:reorder", hookIds),
+
+  // Tool Management
+  getServerTools: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:getServerTools", serverId, clientId),
+  getToolStatistics: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:getStatistics", serverId, clientId),
+  updateToolPreference: (serverId: string, preference: any, clientId?: string) =>
+    ipcRenderer.invoke("tool:updatePreference", serverId, preference, clientId),
+  bulkUpdateTools: (update: { serverId: string; clientId?: string; updates: any[] }) =>
+    ipcRenderer.invoke("tool:bulkUpdate", update),
+  enableAllTools: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:enableAll", serverId, clientId),
+  disableAllTools: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:disableAll", serverId, clientId),
+  resetToolPreferences: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:resetPreferences", serverId, clientId),
+  isToolEnabled: (serverId: string, toolName: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:isEnabled", serverId, toolName, clientId),
+  getAvailableTools: (serverId: string, clientId?: string) =>
+    ipcRenderer.invoke("tool:getAvailableTools", serverId, clientId),
 });

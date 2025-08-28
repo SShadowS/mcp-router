@@ -27,9 +27,12 @@ export class WorkspaceRepository extends BaseRepository<Workspace> {
         });
       }
 
-      console.log("[WorkspaceRepository] テーブルの初期化が完了しました");
+      console.log("[WorkspaceRepository] Table initialization completed");
     } catch (error) {
-      console.error("[WorkspaceRepository] テーブルの初期化中にエラー:", error);
+      console.error(
+        "[WorkspaceRepository] Error during table initialization:",
+        error,
+      );
       throw error;
     }
   }

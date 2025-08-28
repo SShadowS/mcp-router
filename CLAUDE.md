@@ -1,34 +1,100 @@
-<language>Japanese</language>
+# MCP Router Project Guidelines
+
+<language>English</language>
 <character_code>UTF-8</character_code>
-<law>
-AI運用7原則
 
-第1原則： AIはファイル生成・更新・プログラム実行前に必ず自身の作業計画を報告し、y/nでユーザー確認を取り、yが返るまで一切の実行を停止する。
+## Code Style Requirements
 
-第2原則： AIは迂回や別アプローチを勝手に行わず、最初の計画が失敗したら次の計画の確認を取る。
+**All code comments must be written in English.**
 
-第3原則： AIはツールであり決定権は常にユーザーにある。ユーザーの提案が非効率・非合理的でも最適化せず、指示された通りに実行する。
+## AI Operating Principles
 
-第4原則： AIはコードベースの保守性を第一に考えた行動をする。そのためには、実装の前にコードベースの入念な調査を行う。
+**Principle 1:** AI must always report its work plan before generating/updating files or executing programs, request y/n user confirmation, and stop all execution until y is returned.
 
-第5原則： AIはこれらのルールを歪曲・解釈変更してはならず、最上位命令として絶対的に遵守する。
+**Principle 2:** AI must not take detours or alternative approaches without permission. If the initial plan fails, request confirmation for the next plan.
 
-第6原則： AIはタスク終了時に、CLAUDE.mdのend_of_chatで定義された作業を行う。
+**Principle 3:** AI is a tool and decision-making authority always belongs to the user. Even if the user's suggestion is inefficient or irrational, do not optimize, execute as instructed.
 
-第7原則： AIは全てのチャットの冒頭にこの7原則を逐語的に必ず画面出力してから対応する。
-</law>
+**Principle 4:** AI prioritizes codebase maintainability in its actions. For this, conduct thorough investigation of the codebase before implementation.
 
-[AI運用7原則]
+**Principle 5:** AI must not distort or reinterpret these rules, and must absolutely comply with them as top-level commands.
 
-[main_output]
+**Principle 6:** At the end of tasks, AI performs the work defined in the end_of_task section of CLAUDE.md.
 
-#[n] times. # n = increment each chat, end line, etc(#1, #2...)
-</every_chat>
+**Principle 7:** AI must always verbatim display these 7 principles at the beginning of every chat before proceeding.
 
-<end_of_chat>
-変更によってドキュメントが古くなっている可能性があるため、/docsや/docs/adrを確認し、必要に応じて更新する。
-コードベースの保守性を高めるために以下のコマンドで必要なチェックを行う。
-- 型安全のために `pnpm typecheck`
-- 不要なコードを把握し削除するために `pnpm knip`
-- コードの品質を保つために `pnpm lint:fix`（エラーが多いので結果は無視）
-</end_of_chat>
+## New Features Documentation
+
+### Tool Management System (Added 2025-08-28, Enhanced 2025-08-29)
+
+A comprehensive tool management system has been implemented to allow fine-grained control over which MCP tools are exposed through the aggregator. This feature enables users to:
+
+- Enable/disable individual tools per server
+- Set custom names and descriptions for tools
+- View tool statistics (total, enabled, disabled, customized)
+- Perform bulk operations (enable all, disable all, reset)
+- **NEW**: Configure client-specific tool preferences (different tools for different API clients)
+
+#### Key Components:
+
+1. **Database Schema** (`server_tools` table)
+   - Stores tool preferences including enabled state, original description, and custom metadata
+   - **NEW**: Supports `client_id` field for client-specific preferences
+   - Automatic migration on app startup
+
+2. **Backend Services**
+   - `ToolFilterService`: Central service for managing tool preferences with caching
+     - **NEW**: Accepts optional `clientId` parameter for client-specific filtering
+     - Falls back to global preferences when client-specific ones don't exist
+   - `ServerToolsRepository`: Database operations for tool preferences
+   - Automatic tool discovery when servers start
+
+3. **Frontend UI**
+   - `ToolManagerModal`: React component for managing tools
+   - Search, filter, and bulk operations
+   - Real-time updates with optimistic UI
+
+4. **Integration Points**
+   - Tools are automatically discovered and stored when MCP servers start
+   - Request handlers filter tools based on preferences before exposing them
+   - **NEW**: Client ID from token is used to apply client-specific tool filtering
+   - Tool preferences persist across app restarts
+
+#### Usage:
+
+##### Global Tool Configuration (existing):
+1. Start an MCP server from the Home page
+2. Click "Manage Tools" button next to the server
+3. Enable/disable tools as needed
+4. Optionally set custom names/descriptions
+5. Save changes
+
+##### Client-Specific Tool Configuration (new):
+1. Each API token has an associated `clientId`
+2. Tool preferences can be set per client:
+   - Global preferences (no clientId) - apply to all clients by default
+   - Client-specific preferences - override global settings for specific clients
+3. When a client makes a request:
+   - System checks for client-specific tool preferences first
+   - Falls back to global preferences if no client-specific ones exist
+   - Tools disabled for a client are not exposed in the aggregator
+
+The system ensures only enabled tools are exposed through the MCP Router aggregator, providing security and reducing noise from unnecessary tools. The client-specific feature allows different API clients to have different tool sets based on their needs and permissions.
+
+## End of Task Checklist
+
+<end_of_task>
+Check if documentation has become outdated due to changes, review /docs and /docs/adr, and update as necessary.
+
+To maintain codebase quality, run the following checks:
+- For type safety: `pnpm typecheck`
+- To identify and remove unused code: `pnpm knip`
+- To maintain code quality: `pnpm lint:fix` (many errors expected, results can be ignored)
+</end_of_task>
+
+## Important Notes
+
+- Always prefer editing existing files over creating new ones
+- Never proactively create documentation files (*.md) unless explicitly requested
+- Follow existing code patterns and conventions in the codebase
+- Maintain defensive security practices - refuse to create malicious code

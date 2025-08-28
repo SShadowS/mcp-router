@@ -737,5 +737,30 @@
     "success": {
       "imported": "Rules imported"
     }
+  },
+  "tools": {
+    "manageTools": "Manage Tools",
+    "description": "Enable or disable individual tools for this server",
+    "total": "Total",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "customized": "Customized",
+    "searchPlaceholder": "Search tools...",
+    "enableAll": "Enable All",
+    "disableAll": "Disable All",
+    "reset": "Reset",
+    "all": "All",
+    "modified": "Modified",
+    "noDescription": "No description available",
+    "pendingChanges": "{{count}} pending changes",
+    "loadError": "Failed to load tools",
+    "saveSuccess": "Tool preferences saved",
+    "changesSaved": "{{count}} tool preferences updated",
+    "saveError": "Failed to save tool preferences",
+    "resetConfirm": "Are you sure you want to reset all tool preferences for this server?",
+    "resetSuccess": "Tool preferences reset",
+    "resetError": "Failed to reset tool preferences",
+    "noSearchResults": "No tools found matching your search",
+    "noTools": "No tools available for this server"
   }
 }

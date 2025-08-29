@@ -4,6 +4,7 @@ import { DeployedAgentRepository } from "../repositories/deployed-agent/deployed
 import { LogRepository } from "../repositories/log/log-repository";
 import { ServerRepository } from "../repositories/server/server-repository";
 import { ServerToolsRepository } from "../repositories/server/server-tools-repository";
+import { ServerOAuthRepository } from "../repositories/server/server-oauth-repository";
 import { SessionRepository } from "../repositories/session/session-repository";
 import { SettingsRepository } from "../repositories/settings/settings-repository";
 import { TokenRepository } from "../repositories/token/token-repository";
@@ -19,6 +20,7 @@ type RepositoryInstances = {
   log: LogRepository | null;
   server: ServerRepository | null;
   serverTools: ServerToolsRepository | null;
+  serverOAuth: ServerOAuthRepository | null;
   session: SessionRepository | null;
   settings: SettingsRepository | null;
   token: TokenRepository | null;
@@ -37,6 +39,7 @@ export class RepositoryFactory {
     log: null,
     server: null,
     serverTools: null,
+    serverOAuth: null,
     session: null,
     settings: null,
     token: null,
@@ -64,6 +67,7 @@ export class RepositoryFactory {
       log: null,
       server: null,
       serverTools: null,
+      serverOAuth: null,
       session: null,
       settings: null,
       token: null,
@@ -257,6 +261,27 @@ export class RepositoryFactory {
     }
 
     return this.instances.serverTools;
+  }
+
+  /**
+   * ServerOAuthRepositoryのインスタンスを取得
+   */
+  public static getServerOAuthRepository(
+    db: SqliteManager,
+  ): ServerOAuthRepository {
+    if (this.isDatabaseChanged(db)) {
+      this.resetAllInstances();
+      this.currentDb = db;
+    }
+
+    if (!this.instances.serverOAuth) {
+      console.log(
+        "[RepositoryFactory] Creating new ServerOAuthRepository instance",
+      );
+      this.instances.serverOAuth = new ServerOAuthRepository(db);
+    }
+
+    return this.instances.serverOAuth;
   }
 
   /**

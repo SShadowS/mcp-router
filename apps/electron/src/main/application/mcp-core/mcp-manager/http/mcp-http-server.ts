@@ -505,7 +505,7 @@ export class MCPHttpServer {
           }
 
           // Check if the server exists in the manager
-          const servers = this.serverManager.getServers();
+          const servers = await this.serverManager.getServers();
           const serverExists = servers.some((s) => s.id === serverId);
 
           if (!serverExists) {
@@ -582,7 +582,7 @@ export class MCPHttpServer {
           }
 
           // Check if the server exists in the manager
-          const servers = this.serverManager.getServers();
+          const servers = await this.serverManager.getServers();
           const serverExists = servers.some((s) => s.id === serverId);
 
           if (!serverExists) {
@@ -643,7 +643,7 @@ export class MCPHttpServer {
           }
 
           // Check if the server exists in the manager
-          const servers = this.serverManager.getServers();
+          const servers = await this.serverManager.getServers();
           const server = servers.find((s) => s.id === serverId);
 
           if (!server) {
@@ -689,9 +689,9 @@ export class MCPHttpServer {
     // GET /servers - List all MCP servers
     this.v0Router.get(
       "/servers",
-      (req: express.Request, res: express.Response) => {
+      async (req: express.Request, res: express.Response) => {
         try {
-          const servers = this.serverManager.getServers();
+          const servers = await this.serverManager.getServers();
           // Filter out sensitive information from the server objects
           const filteredServers = servers.map((server) => {
             return {
@@ -730,7 +730,7 @@ export class MCPHttpServer {
           }
 
           // Get existing servers to prevent name conflicts
-          const existingServers = this.serverManager.getServers();
+          const existingServers = await this.serverManager.getServers();
           const existingServerNames = new Set<string>(
             existingServers.map((server) => server.name),
           );

@@ -241,15 +241,68 @@ contextBridge.exposeInMainWorld("electronAPI", {
   listClients: () => ipcRenderer.invoke("client:list"),
   getClient: (id: string) => ipcRenderer.invoke("client:get", id),
   createClient: (dto: any) => ipcRenderer.invoke("client:create", dto),
-  updateClient: (id: string, dto: any) => ipcRenderer.invoke("client:update", id, dto),
+  updateClient: (id: string, dto: any) =>
+    ipcRenderer.invoke("client:update", id, dto),
   deleteClient: (id: string) => ipcRenderer.invoke("client:delete", id),
   getClientStats: () => ipcRenderer.invoke("client:stats"),
 
+  // OAuth Management
+  configureOAuth: (serverId: string, provider: string, config: any) =>
+    ipcRenderer.invoke("oauth:configure", serverId, provider, config),
+  authenticateOAuth: (serverId: string, scopes?: string[]) =>
+    ipcRenderer.invoke("oauth:authenticate", serverId, scopes),
+  getOAuthStatus: (serverId: string) =>
+    ipcRenderer.invoke("oauth:getStatus", serverId),
+  getOAuthAccessToken: (serverId: string) =>
+    ipcRenderer.invoke("oauth:getAccessToken", serverId),
+  refreshOAuthToken: (serverId: string) =>
+    ipcRenderer.invoke("oauth:refreshToken", serverId),
+  revokeOAuthAccess: (serverId: string) =>
+    ipcRenderer.invoke("oauth:revokeAccess", serverId),
+  discoverOAuthEndpoints: (serverUrl: string, provider?: string) =>
+    ipcRenderer.invoke("oauth:discoverEndpoints", serverUrl, provider),
+  getOAuthConfiguration: (serverId: string) =>
+    ipcRenderer.invoke("oauth:getConfiguration", serverId),
+  updateOAuthConfiguration: (serverId: string, updates: any) =>
+    ipcRenderer.invoke("oauth:updateConfiguration", serverId, updates),
+  removeOAuthConfiguration: (serverId: string) =>
+    ipcRenderer.invoke("oauth:removeConfiguration", serverId),
+  hasOAuthConfiguration: (serverId: string) =>
+    ipcRenderer.invoke("oauth:hasConfiguration", serverId),
+  hasValidOAuthToken: (serverId: string) =>
+    ipcRenderer.invoke("oauth:hasValidToken", serverId),
+  getAllOAuthConfigurations: () =>
+    ipcRenderer.invoke("oauth:getAllConfigurations"),
+  importOAuthConfiguration: (serverId: string, config: any) =>
+    ipcRenderer.invoke("oauth:importConfiguration", serverId, config),
+
+  // OAuth Session Management
+  oauth: {
+    getAllSessions: () => ipcRenderer.invoke("oauth:getAllSessions"),
+    getSecurityMetrics: () => ipcRenderer.invoke("oauth:getSecurityMetrics"),
+    getAuditLogs: (filters?: any) =>
+      ipcRenderer.invoke("oauth:getAuditLogs", filters),
+    rotateEncryptionKeys: () =>
+      ipcRenderer.invoke("oauth:rotateEncryptionKeys"),
+    createBackup: () => ipcRenderer.invoke("oauth:createBackup"),
+    selectAndRestoreBackup: () =>
+      ipcRenderer.invoke("oauth:selectAndRestoreBackup"),
+    getMigrationStatus: () => ipcRenderer.invoke("oauth:getMigrationStatus"),
+    runMigration: () => ipcRenderer.invoke("oauth:runMigration"),
+    exportSecurityReport: () =>
+      ipcRenderer.invoke("oauth:exportSecurityReport"),
+    refreshToken: (serverId: string) =>
+      ipcRenderer.invoke("oauth:refreshToken", serverId),
+    revokeAccess: (serverId: string) =>
+      ipcRenderer.invoke("oauth:revokeAccess", serverId),
+  },
+
   // Token Management (for clients)
-  generateToken: (params: { clientId: string; serverIds?: string[] }) => 
+  generateToken: (params: { clientId: string; serverIds?: string[] }) =>
     ipcRenderer.invoke("token:generate", params),
   revokeToken: (tokenId: string) => ipcRenderer.invoke("token:revoke", tokenId),
-  getClientTokens: (clientId: string) => ipcRenderer.invoke("token:listByClient", clientId),
+  getClientTokens: (clientId: string) =>
+    ipcRenderer.invoke("token:listByClient", clientId),
 
   // Workspace Management
   listWorkspaces: () => ipcRenderer.invoke("workspace:list"),
@@ -287,10 +340,17 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("tool:getServerTools", serverId, clientId),
   getToolStatistics: (serverId: string, clientId?: string) =>
     ipcRenderer.invoke("tool:getStatistics", serverId, clientId),
-  updateToolPreference: (serverId: string, preference: any, clientId?: string) =>
+  updateToolPreference: (
+    serverId: string,
+    preference: any,
+    clientId?: string,
+  ) =>
     ipcRenderer.invoke("tool:updatePreference", serverId, preference, clientId),
-  bulkUpdateTools: (update: { serverId: string; clientId?: string; updates: any[] }) =>
-    ipcRenderer.invoke("tool:bulkUpdate", update),
+  bulkUpdateTools: (update: {
+    serverId: string;
+    clientId?: string;
+    updates: any[];
+  }) => ipcRenderer.invoke("tool:bulkUpdate", update),
   enableAllTools: (serverId: string, clientId?: string) =>
     ipcRenderer.invoke("tool:enableAll", serverId, clientId),
   disableAllTools: (serverId: string, clientId?: string) =>

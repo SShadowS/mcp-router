@@ -51,7 +51,8 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       set({ clients, isLoading: false });
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to fetch clients",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch clients",
         isLoading: false,
       });
     }
@@ -68,7 +69,8 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       return newClient;
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to create client",
+        error:
+          error instanceof Error ? error.message : "Failed to create client",
         isLoading: false,
       });
       throw error;
@@ -82,12 +84,15 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       set((state) => ({
         clients: state.clients.map((c) => (c.id === id ? updatedClient : c)),
         selectedClient:
-          state.selectedClient?.id === id ? updatedClient : state.selectedClient,
+          state.selectedClient?.id === id
+            ? updatedClient
+            : state.selectedClient,
         isLoading: false,
       }));
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to update client",
+        error:
+          error instanceof Error ? error.message : "Failed to update client",
         isLoading: false,
       });
       throw error;
@@ -100,12 +105,14 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       await window.electronAPI.deleteClient(id);
       set((state) => ({
         clients: state.clients.filter((c) => c.id !== id),
-        selectedClient: state.selectedClient?.id === id ? null : state.selectedClient,
+        selectedClient:
+          state.selectedClient?.id === id ? null : state.selectedClient,
         isLoading: false,
       }));
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to delete client",
+        error:
+          error instanceof Error ? error.message : "Failed to delete client",
         isLoading: false,
       });
       throw error;
@@ -122,15 +129,16 @@ export const useClientStore = create<ClientStore>((set, get) => ({
         clientId,
         serverIds: serverIds || [],
       });
-      
+
       // Refresh the client to update token count
       const clients = await window.electronAPI.listClients();
       set({ clients });
-      
+
       return token;
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to generate token",
+        error:
+          error instanceof Error ? error.message : "Failed to generate token",
       });
       throw error;
     }
@@ -139,13 +147,14 @@ export const useClientStore = create<ClientStore>((set, get) => ({
   revokeToken: async (tokenId: string) => {
     try {
       await window.electronAPI.revokeToken(tokenId);
-      
+
       // Refresh clients to update token counts
       const clients = await window.electronAPI.listClients();
       set({ clients });
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to revoke token",
+        error:
+          error instanceof Error ? error.message : "Failed to revoke token",
       });
       throw error;
     }
@@ -156,7 +165,8 @@ export const useClientStore = create<ClientStore>((set, get) => ({
       return await window.electronAPI.getClientTokens(clientId);
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to fetch tokens",
+        error:
+          error instanceof Error ? error.message : "Failed to fetch tokens",
       });
       throw error;
     }
@@ -175,10 +185,10 @@ export const useClientStore = create<ClientStore>((set, get) => ({
 export const clientSelectors = {
   getClientById: (id: string) => (state: ClientStore) =>
     state.clients.find((c) => c.id === id),
-  
+
   getActiveClients: () => (state: ClientStore) =>
     state.clients.filter((c) => c.activeTokenCount && c.activeTokenCount > 0),
-  
+
   getTotalTokenCount: () => (state: ClientStore) =>
     state.clients.reduce((sum, c) => sum + (c.tokenCount || 0), 0),
 };

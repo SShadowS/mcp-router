@@ -247,6 +247,78 @@ declare global {
       updateToolPreference: (serverId: string, preference: any, clientId?: string) => Promise<any>;
       bulkUpdateTools: (update: { serverId: string; clientId?: string; updates: any[] }) => Promise<any[]>;
       enableAllTools: (serverId: string, clientId?: string) => Promise<void>;
+
+      // OAuth Management
+      configureOAuth: (serverId: string, provider: string, config: any) => Promise<any>;
+      authenticateOAuth: (serverId: string, scopes?: string[]) => Promise<any>;
+      getOAuthStatus: (serverId: string) => Promise<any>;
+      getOAuthAccessToken: (serverId: string) => Promise<string | null>;
+      refreshOAuthToken: (serverId: string) => Promise<any>;
+      revokeOAuthAccess: (serverId: string) => Promise<boolean>;
+      discoverOAuthEndpoints: (serverUrl: string, provider?: string) => Promise<any>;
+      getOAuthConfiguration: (serverId: string) => Promise<any>;
+      updateOAuthConfiguration: (serverId: string, updates: any) => Promise<any>;
+      removeOAuthConfiguration: (serverId: string) => Promise<boolean>;
+      hasOAuthConfiguration: (serverId: string) => Promise<boolean>;
+      hasValidOAuthToken: (serverId: string) => Promise<boolean>;
+      getAllOAuthConfigurations: () => Promise<any[]>;
+      importOAuthConfiguration: (serverId: string, config: any) => Promise<any>;
+      
+      // OAuth Session Management
+      oauth: {
+        getAllSessions: () => Promise<Array<{
+          serverId: string;
+          serverName: string;
+          provider: string;
+          authenticated: boolean;
+          expiresAt?: number;
+          lastRefresh?: number;
+          scopes?: string[];
+          error?: string;
+        }>>;
+        getSecurityMetrics: () => Promise<{
+          keyVersion: number;
+          lastKeyRotation: number;
+          nextKeyRotation: number;
+          totalAuditLogs: number;
+          recentSecurityEvents: { [key: string]: number };
+          rateLimitStatus: { [key: string]: any };
+        }>;
+        getAuditLogs: (filters?: any) => Promise<Array<{
+          id: string;
+          timestamp: number;
+          eventType: string;
+          serverId?: string;
+          severity: 'info' | 'warning' | 'error' | 'critical';
+          details: Record<string, any>;
+        }>>;
+        rotateEncryptionKeys: () => Promise<boolean>;
+        createBackup: () => Promise<string | null>;
+        selectAndRestoreBackup: () => Promise<{
+          success: boolean;
+          restored: { configs: number; tokens: number };
+        } | null>;
+        getMigrationStatus: () => Promise<{
+          currentVersion: string;
+          targetVersion: string;
+          pendingMigrations: Array<{ version: string; description: string }>;
+          appliedMigrations: string[];
+          lastMigration: number;
+          canRollback: boolean;
+        }>;
+        runMigration: () => Promise<{
+          success: boolean;
+          fromVersion: string;
+          toVersion: string;
+          migrationsApplied: string[];
+          errors?: string[];
+          warnings?: string[];
+        }>;
+        exportSecurityReport: () => Promise<string | null>;
+        refreshToken: (serverId: string) => Promise<any>;
+        revokeAccess: (serverId: string) => Promise<boolean>;
+      };
+      
       disableAllTools: (serverId: string, clientId?: string) => Promise<void>;
       resetToolPreferences: (serverId: string, clientId?: string) => Promise<boolean>;
       isToolEnabled: (serverId: string, toolName: string, clientId?: string) => Promise<boolean>;

@@ -12,9 +12,9 @@ import { logInfo, logError } from "@/main/utils/logger";
 export function setupMcpServerHandlers(): void {
   const getMCPServerManager = () => (global as any).getMCPServerManager();
 
-  ipcMain.handle("mcp:list", () => {
+  ipcMain.handle("mcp:list", async () => {
     const mcpServerManager = getMCPServerManager();
-    return mcpServerManager.getServers();
+    return await mcpServerManager.getServers();
   });
 
   ipcMain.handle("mcp:start", async (_, id: string) => {

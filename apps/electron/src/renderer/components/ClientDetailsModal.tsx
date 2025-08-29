@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Button, Input, Label, Textarea, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Checkbox } from "@mcp_router/ui";
+import {
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  Checkbox,
+} from "@mcp_router/ui";
 import { useClientStore } from "@/renderer/stores/client-store";
 import { ClientWithTokens } from "@mcp_router/shared";
 import { useServerStore } from "@/renderer/stores";
@@ -38,7 +49,7 @@ export default function ClientDetailsModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) {
       setError("Client name is required");
       return;
@@ -53,14 +64,16 @@ export default function ClientDetailsModal({
         await updateClient(client.id, {
           name: name.trim(),
           description: description.trim() || undefined,
-          serverAccess: selectedServerIds.length > 0 ? selectedServerIds : undefined,
+          serverAccess:
+            selectedServerIds.length > 0 ? selectedServerIds : undefined,
         });
       } else {
         // Create new client
         await createClient({
           name: name.trim(),
           description: description.trim() || undefined,
-          serverAccess: selectedServerIds.length > 0 ? selectedServerIds : undefined,
+          serverAccess:
+            selectedServerIds.length > 0 ? selectedServerIds : undefined,
         });
       }
       onClose();
@@ -75,7 +88,7 @@ export default function ClientDetailsModal({
     setSelectedServerIds((prev) =>
       prev.includes(serverId)
         ? prev.filter((id) => id !== serverId)
-        : [...prev, serverId]
+        : [...prev, serverId],
     );
   };
 
@@ -83,7 +96,9 @@ export default function ClientDetailsModal({
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{client ? "Edit Client" : "Create New Client"}</DialogTitle>
+          <DialogTitle>
+            {client ? "Edit Client" : "Create New Client"}
+          </DialogTitle>
           <DialogDescription>
             {client
               ? "Update the client information and server access"
@@ -97,7 +112,9 @@ export default function ClientDetailsModal({
             <Input
               id="name"
               value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setName(e.target.value)
+              }
               placeholder="My API Client"
               disabled={isSubmitting}
             />
@@ -108,7 +125,9 @@ export default function ClientDetailsModal({
             <Textarea
               id="description"
               value={description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setDescription(e.target.value)
+              }
               placeholder="Optional description of what this client is used for"
               rows={3}
               disabled={isSubmitting}
@@ -146,7 +165,8 @@ export default function ClientDetailsModal({
               </div>
               {selectedServerIds.length === 0 && (
                 <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                  No servers selected. You can grant access later by generating tokens.
+                  No servers selected. You can grant access later by generating
+                  tokens.
                 </p>
               )}
             </div>
@@ -173,8 +193,8 @@ export default function ClientDetailsModal({
                   ? "Updating..."
                   : "Creating..."
                 : client
-                ? "Update Client"
-                : "Create Client"}
+                  ? "Update Client"
+                  : "Create Client"}
             </Button>
           </div>
         </form>

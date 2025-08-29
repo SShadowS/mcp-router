@@ -69,7 +69,7 @@ export class MCPServerManager {
   /**
    * Get a list of all MCP servers
    */
-  public getServers(): MCPServer[] {
+  public async getServers(): Promise<MCPServer[]> {
     return this.serverManager.getServers();
   }
 

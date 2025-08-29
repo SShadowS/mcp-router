@@ -35,7 +35,14 @@ import {
   ToolPreferenceUpdate,
   ClientWithTokens,
 } from "@mcp_router/shared";
-import { useToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@mcp_router/ui";
+import {
+  useToast,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@mcp_router/ui";
 import { useClientStore } from "@/renderer/stores/client-store";
 
 interface ToolManagerModalProps {
@@ -63,7 +70,9 @@ export const ToolManagerModal: React.FC<ToolManagerModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedClientId, setSelectedClientId] = useState<string | undefined>(initialClientId);
+  const [selectedClientId, setSelectedClientId] = useState<string | undefined>(
+    initialClientId,
+  );
   const [pendingChanges, setPendingChanges] = useState<
     Map<string, ToolPreferenceUpdate>
   >(new Map());
@@ -267,10 +276,14 @@ export const ToolManagerModal: React.FC<ToolManagerModalProps> = ({
         {/* Client Selector */}
         {clients.length > 0 && (
           <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg">
-            <span className="text-sm font-medium">{t("tools.configureFor", "Configure for:")}</span>
+            <span className="text-sm font-medium">
+              {t("tools.configureFor", "Configure for:")}
+            </span>
             <Select
               value={selectedClientId || "global"}
-              onValueChange={(value) => setSelectedClientId(value === "global" ? undefined : value)}
+              onValueChange={(value) =>
+                setSelectedClientId(value === "global" ? undefined : value)
+              }
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select client" />

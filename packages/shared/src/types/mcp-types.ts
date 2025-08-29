@@ -32,6 +32,11 @@ export interface MCPServerConfig {
   version?: string;
 
   toolPermissions?: MCPServerToolPermissions;
+
+  // OAuth authentication configuration
+  authType?: "none" | "bearer" | "oauth";
+  oauthProvider?: string;
+  requiresAuth?: boolean;
 }
 
 export interface MCPTool {
@@ -66,6 +71,13 @@ export interface MCPServer extends MCPServerConfig {
   tools?: MCPTool[];
   resources?: MCPResource[];
   prompts?: MCPPrompt[];
+  // OAuth status
+  oauthStatus?: {
+    configured: boolean;
+    authenticated: boolean;
+    tokenValid: boolean;
+    expiresAt?: number;
+  };
 }
 
 // Agent type alias for backward compatibility

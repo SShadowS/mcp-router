@@ -13,6 +13,7 @@ import {
 } from "@/main/domain/mcp-core/client/mcp-client-util";
 import { LoggingService } from "./logging";
 import { getToolFilterService } from "@/main/domain/mcp-core/tool/tool-filter-service";
+import { OAuthTokenInjector } from "@/main/domain/mcp-core/oauth/oauth-token-injector";
 
 /**
  * Core server lifecycle management
@@ -122,7 +123,7 @@ export class ServerManager {
   /**
    * Get a list of all MCP servers
    */
-  public getServers(): MCPServer[] {
+  public async getServers(): Promise<MCPServer[]> {
     // Get latest server info from database
     const dbServers = this.serverService.getAllServers();
 
@@ -138,11 +139,30 @@ export class ServerManager {
       }
     });
 
-    // Return servers with their current runtime status preserved
-    return Array.from(this.servers.values()).map((server) => {
-      const currentServer = this.servers.get(server.id);
-      return currentServer || server;
-    });
+    // Get OAuth token injector
+    const tokenInjector = OAuthTokenInjector.getInstance();
+
+    // Return servers with their current runtime status and OAuth status preserved
+    const servers = await Promise.all(
+      Array.from(this.servers.values()).map(async (server) => {
+        const currentServer = this.servers.get(server.id);
+        const serverData = currentServer || server;
+
+        // Add OAuth health status
+        try {
+          const oauthHealth = await tokenInjector.getOAuthHealth(server.id);
+          return {
+            ...serverData,
+            oauthStatus: oauthHealth,
+          };
+        } catch (error) {
+          // If OAuth check fails, return server without OAuth status
+          return serverData;
+        }
+      }),
+    );
+
+    return servers;
   }
 
   /**

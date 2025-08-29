@@ -5,6 +5,7 @@ export * from "./agents";
 export * from "./deployed-agents";
 export * from "./servers";
 export * from "./server-tools";
+export * from "./server-oauth";
 export * from "./request-logs";
 export * from "./chat-sessions";
 export * from "./settings";

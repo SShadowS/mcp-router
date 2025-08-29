@@ -9,6 +9,8 @@ import {
   MCPServerConfig,
   MCPInputParam,
 } from "@mcp_router/shared";
+import { OAuthTokenInjector } from "../oauth/oauth-token-injector";
+import { createOAuthFetch } from "../oauth/oauth-fetch-wrapper";
 
 /**
  * Creates an MCP client and connects to the specified server
@@ -21,6 +23,9 @@ export async function connectToMCPServer(
   clientName = "mcp-client",
 ): Promise<MCPConnectionResult> {
   try {
+    // Get OAuth token injector
+    const tokenInjector = OAuthTokenInjector.getInstance();
+
     // Create MCP client
     const client = new Client(
       {
@@ -45,17 +50,24 @@ export async function connectToMCPServer(
         );
       }
 
+      // Prepare headers with OAuth token if configured
+      const baseHeaders: Record<string, string> = {};
+      if (server.bearerToken) {
+        baseHeaders.authorization = `Bearer ${server.bearerToken}`;
+      }
+
+      const { headers: oauthHeaders } = await tokenInjector.injectToken(
+        server.id,
+        baseHeaders,
+      );
+
       // Use StreamableHTTP transport for remote-streamable servers
       const transport = new StreamableHTTPClientTransport(
         new URL(server.remoteUrl),
         {
           sessionId: undefined,
           requestInit: {
-            headers: {
-              authorization: server.bearerToken
-                ? `Bearer ${server.bearerToken}`
-                : "",
-            },
+            headers: oauthHeaders,
           },
         },
       );
@@ -69,17 +81,26 @@ export async function connectToMCPServer(
       }
 
       // Use SSE transport for remote servers
-      const headers: Record<string, string> = {
+      const baseHeaders: Record<string, string> = {
         Accept: "text/event-stream",
       };
 
       if (server.bearerToken) {
-        headers["authorization"] = `Bearer ${server.bearerToken}`;
+        baseHeaders["authorization"] = `Bearer ${server.bearerToken}`;
       }
+
+      // Inject OAuth token if configured
+      const { headers } = await tokenInjector.injectToken(
+        server.id,
+        baseHeaders,
+      );
+
+      // Create OAuth-aware fetch for handling 401 responses
+      const oauthFetch = createOAuthFetch({ serverId: server.id });
 
       const transport = new SSEClientTransport(new URL(server.remoteUrl), {
         eventSourceInit: {
-          fetch: (url, init) => fetch(url, { ...init, headers }),
+          fetch: (url, init) => oauthFetch(url, { ...init, headers }),
         },
         requestInit: {
           headers,

@@ -34,9 +34,12 @@ export class ClientHandler {
     });
 
     // Update client
-    ipcMain.handle("client:update", async (_, id: string, dto: ClientUpdateDto) => {
-      return this.updateClient(id, dto);
-    });
+    ipcMain.handle(
+      "client:update",
+      async (_, id: string, dto: ClientUpdateDto) => {
+        return this.updateClient(id, dto);
+      },
+    );
 
     // Delete client
     ipcMain.handle("client:delete", async (_, id: string) => {
@@ -54,12 +57,12 @@ export class ClientHandler {
    */
   private async listClients(): Promise<ClientWithTokens[]> {
     const db = getSqliteManager("mcprouter");
-    
+
     // Get all unique client IDs from tokens
     const tokenData = db.all<{ client_id: string; token_count: number }>(
       `SELECT client_id, COUNT(*) as token_count 
        FROM tokens 
-       GROUP BY client_id`
+       GROUP BY client_id`,
     );
 
     // Create a map of client IDs to their metadata
@@ -81,13 +84,13 @@ export class ClientHandler {
 
     // Check if we have a clients table (we'll create this later if needed)
     const hasClientsTable = db.get(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='clients'"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='clients'",
     );
 
     if (hasClientsTable) {
       // Get client metadata from clients table
       const clients = db.all<Client>("SELECT * FROM clients");
-      
+
       for (const client of clients) {
         const existing = clientsMap.get(client.id);
         if (existing) {
@@ -116,7 +119,7 @@ export class ClientHandler {
    */
   private async getClient(id: string): Promise<ClientWithTokens | null> {
     const clients = await this.listClients();
-    return clients.find(c => c.id === id) || null;
+    return clients.find((c) => c.id === id) || null;
   }
 
   /**
@@ -124,7 +127,7 @@ export class ClientHandler {
    */
   private async createClient(dto: ClientCreateDto): Promise<ClientWithTokens> {
     const db = getSqliteManager("mcprouter");
-    
+
     // Ensure clients table exists
     this.ensureClientsTable();
 
@@ -141,7 +144,13 @@ export class ClientHandler {
     db.execute(
       `INSERT INTO clients (id, name, description, created_at, updated_at) 
        VALUES (?, ?, ?, ?, ?)`,
-      [client.id, client.name, client.description || null, client.createdAt, client.updatedAt]
+      [
+        client.id,
+        client.name,
+        client.description || null,
+        client.createdAt,
+        client.updatedAt,
+      ],
     );
 
     // Generate an initial token if serverAccess was provided
@@ -165,9 +174,12 @@ export class ClientHandler {
   /**
    * Update a client
    */
-  private async updateClient(id: string, dto: ClientUpdateDto): Promise<ClientWithTokens> {
+  private async updateClient(
+    id: string,
+    dto: ClientUpdateDto,
+  ): Promise<ClientWithTokens> {
     const db = getSqliteManager("mcprouter");
-    
+
     // Ensure clients table exists
     this.ensureClientsTable();
 
@@ -196,15 +208,15 @@ export class ClientHandler {
 
       db.execute(
         `UPDATE clients SET ${updates.join(", ")} WHERE id = ?`,
-        values
+        values,
       );
     }
 
     // Update server access if provided
     if (dto.serverAccess !== undefined) {
       const tokenService = getTokenService();
-      const tokens = tokenService.listTokens().filter(t => t.clientId === id);
-      
+      const tokens = tokenService.listTokens().filter((t) => t.clientId === id);
+
       // Update all tokens for this client
       for (const token of tokens) {
         tokenService.updateTokenServerAccess(token.id, dto.serverAccess);
@@ -219,14 +231,14 @@ export class ClientHandler {
    */
   private async deleteClient(id: string): Promise<void> {
     const db = getSqliteManager("mcprouter");
-    
+
     // Delete all tokens for this client
     const tokenService = getTokenService();
     tokenService.deleteClientTokens(id);
 
     // Delete from clients table if it exists
     const hasClientsTable = db.get(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='clients'"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='clients'",
     );
 
     if (hasClientsTable) {
@@ -239,12 +251,17 @@ export class ClientHandler {
    */
   private async getStatistics() {
     const clients = await this.listClients();
-    
+
     return {
       totalClients: clients.length,
-      activeClients: clients.filter(c => c.activeTokenCount && c.activeTokenCount > 0).length,
+      activeClients: clients.filter(
+        (c) => c.activeTokenCount && c.activeTokenCount > 0,
+      ).length,
       totalTokens: clients.reduce((sum, c) => sum + (c.tokenCount || 0), 0),
-      activeTokens: clients.reduce((sum, c) => sum + (c.activeTokenCount || 0), 0),
+      activeTokens: clients.reduce(
+        (sum, c) => sum + (c.activeTokenCount || 0),
+        0,
+      ),
     };
   }
 
@@ -253,7 +270,7 @@ export class ClientHandler {
    */
   private ensureClientsTable(): void {
     const db = getSqliteManager("mcprouter");
-    
+
     db.execute(`
       CREATE TABLE IF NOT EXISTS clients (
         id TEXT PRIMARY KEY,
@@ -265,9 +282,7 @@ export class ClientHandler {
     `);
 
     // Create index
-    db.execute(
-      "CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name)"
-    );
+    db.execute("CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name)");
   }
 }
 

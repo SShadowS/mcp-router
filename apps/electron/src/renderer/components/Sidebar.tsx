@@ -221,7 +221,9 @@ const SidebarComponent: React.FC = () => {
                         className="flex items-center gap-3 py-5 px-3 w-full"
                       >
                         <IconUsers className="h-6 w-6" />
-                        <span className="text-base">{t("clients.title", "Clients")}</span>
+                        <span className="text-base">
+                          {t("clients.title", "Clients")}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

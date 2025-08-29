@@ -65,13 +65,13 @@ export function createTray(mcpServerManager: MCPServerManager): Tray | null {
  * Updates the tray context menu based on current server status
  * @param mcpServerManager The MCPServerManager instance to get server info
  */
-export function updateTrayContextMenu(
+export async function updateTrayContextMenu(
   mcpServerManager: MCPServerManager,
-): void {
+): Promise<void> {
   if (!tray) return;
 
   // Get all servers and filter to running ones
-  const allServers = mcpServerManager.getServers();
+  const allServers = await mcpServerManager.getServers();
   const runningServers = allServers.filter(
     (server) => server.status === "running",
   );

@@ -94,3 +94,8 @@ export function getServerToolsRepository() {
   const db = getSqliteManager("mcprouter");
   return RepositoryFactory.getServerToolsRepository(db);
 }
+
+export function getServerOAuthRepository() {
+  const db = getSqliteManager("mcprouter");
+  return RepositoryFactory.getServerOAuthRepository(db);
+}

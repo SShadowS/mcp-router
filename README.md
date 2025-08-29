@@ -1,77 +1,168 @@
-<h1 align="center">MCP Router</h1>
-<h3 align="center">A Unified MCP Server Management App</h3>
+# MCP Router
 
-<div align="center">
+[![License](https://img.shields.io/badge/license-Sustainable%20Use-blue)](LICENSE.md)
+[![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
+[![Electron](https://img.shields.io/badge/Electron-Latest-9FEAF9)](https://www.electronjs.org/)
 
-[![GitHub stars](https://img.shields.io/github/stars/mcp-router/mcp-router?style=flat&logo=github&label=Star)](https://github.com/mcp-router/mcp-router)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=flat&logo=discord)](https://discord.com/invite/dwG9jPrhxB)
-[![X](https://img.shields.io/badge/X(Twitter)-@mcp__router-1DA1F2?style=flat&logo=x)](https://twitter.com/mcp_router)
+A powerful desktop application for orchestrating Model Context Protocol servers with enterprise-grade control, monitoring, and security.
 
-[English | [日本語](https://github.com/mcp-router/mcp-router/blob/main/README_ja.md)]
+## 📋 Overview
 
-</div>
+MCP Router acts as a unified control plane for managing multiple MCP servers, providing fine-grained tool management, client isolation, and comprehensive monitoring. It solves the complexity of juggling multiple server connections, managing permissions, and tracking tool usage across different AI applications.
 
-## 🎯 Overview
+## ✨ Features
 
-**MCP Router** is a desktop application for simplifies the management of Model Context Protocol (MCP) servers.
+- **🎛️ Advanced Tool Management** - Enable/disable, rename, and customize tools per server or client
+- **🔐 Multi-Layer Authentication** - OAuth 2.1, Bearer tokens, and API key support
+- **👥 Client Isolation** - Different tool sets for different API clients
+- **📊 Real-time Monitoring** - Comprehensive logging and performance metrics
+- **🚀 Performance Optimized** - In-memory caching, connection pooling, lazy loading
+- **🛡️ Security First** - Local storage, encrypted credentials, audit logging
+- **🔌 Universal Compatibility** - Support for any MCP server (local/remote)
 
-### ✨ Key Features
+## 🚀 Quick Start
 
-- 🌐 **Universal** - Connect to any MCP server
-  - Remote or local servers
-  - Supports DXT, JSON, Manual
-- 🖥️ **Cross-platform** - Available for Windows and macOS
-- 🤖 **AI Agent Feature** - Create, share, and use AI Agents with MCP tools, and use your agents as MCP servers in other apps
+### Prerequisites
 
-## 🔒 Privacy & Security
+- Node.js >= 20.0.0
+- pnpm >= 8.0.0
+- Windows 10+ or macOS 10.15+
 
-### Your Data Stays Local
-- ✅ **All data is stored locally** - Request logs, configurations, and server data remain on your device
-- ✅ **Credentials are secure** - API keys and authentication credentials are stored locally and never transmitted externally
-- ✅ **Complete control** - You have full control over your MCP server connections and data
+### Installation
 
-### Transparency
-- 🔍 **Auditable application** - The desktop application source code is publicly available on GitHub
-- 🛡️ **Verifiable privacy** - You can verify that your data stays local by examining the application code
-- 🤝 **Community-driven** - Security improvements and audits are welcomed from the [community](https://discord.com/invite/dwG9jPrhxB)
+```bash
+# Clone the repository
+git clone https://github.com/SShadowS/mcp-router.git
+cd mcp-router
 
+# Install dependencies
+pnpm install
 
-## 📥 Installation
+# Start development
+pnpm dev
 
-Download from our [installation page](http://mcp-router.net/install) or [releases page](https://github.com/mcp-router/mcp-router/releases).
+# Build for production
+pnpm build
+```
 
+### Download Pre-built
 
-## 🚀 Features
+Get the latest release from [GitHub Releases](https://github.com/SShadowS/mcp-router/releases)
 
-### 📊 Centralized Server Management
-Easily toggle MCP servers on/off from a single dashboard
+## 🛠️ Tools
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/toggle.png" alt="Server Management" width="600">
+### Tool Management System
 
-### 🌐 Universal Connectivity
-Add and connect to any MCP server with support for both local and remote servers
+Control every aspect of tool exposure:
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/add-mcp-manual.png" alt="Universal Connectivity" width="600">
+```typescript
+// Configure tools per client
+{
+  "production": {
+    "tools": {
+      "read_file": { enabled: true },
+      "write_file": { enabled: false },
+      "execute": { 
+        enabled: true,
+        customName: "safe_execute"
+      }
+    }
+  },
+  "development": {
+    "tools": ["*"]  // Full access
+  }
+}
+```
 
-### 🔗 One-Click Integration
-Seamlessly connect with popular AI tools like Claude, Cline, Windsurf, Cursor, or your custom client
+### Supported Configurations
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/token.png" alt="One-Click Integration" width="600">
+- **Manual** - Direct server configuration
+- **JSON** - Import from MCP settings
+- **DXT** - DXT configuration format
 
-### 📈 Comprehensive Logging & Analytics
-Monitor and display detailed request logs
+## 🏗️ Architecture
 
-<img src="https://raw.githubusercontent.com/mcp-router/mcp-router/main/public/images/readme/stats.png" alt="Logs and Statistics" width="600">
+```mermaid
+graph TD
+    A[AI Clients] --> B[MCP Router]
+    B --> C[Auth Engine]
+    B --> D[Tool Filter]
+    B --> E[Request Router]
+    B --> F[Monitor]
+    B --> G[MCP Servers]
+```
 
+### Tech Stack
 
-## 🤝 Community
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **Backend**: Electron, Node.js
+- **Database**: SQLite (better-sqlite3)
+- **Build**: Webpack, Turbo
+- **Testing**: Playwright
 
-Join our community to get help, share ideas, and stay updated:
+## 💻 Development
 
-- 💬 [Discord Community](https://discord.com/invite/dwG9jPrhxB)
-- 🐦 [Follow us on X (Twitter)](https://twitter.com/mcp_router)
-- ⭐ [Star us on GitHub](https://github.com/mcp-router/mcp-router)
+### Project Structure
 
-## 📝 License
+```
+mcp-router/
+├── apps/
+│   ├── electron/      # Desktop application
+│   └── cli/           # Command line interface
+├── packages/
+│   ├── shared/        # Common types & utilities
+│   └── ui/            # Shared components
+└── docs/              # Documentation
+```
 
-This project is licensed under the Sustainable Use License - see the [LICENSE.md](LICENSE.md) file for details.
+### Commands
+
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build all packages
+pnpm typecheck    # Run type checking
+pnpm test:e2e     # Run end-to-end tests
+pnpm lint:fix     # Fix linting issues
+pnpm knip         # Analyze unused code
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📅 Roadmap
+
+- [ ] Plugin system for custom extensions
+- [ ] Cloud sync for configurations
+- [ ] Advanced analytics dashboard
+- [ ] Multi-workspace support
+- [ ] Tool marketplace integration
+- [ ] Performance profiling tools
+- [ ] Automated testing framework
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/SShadowS/mcp-router/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/SShadowS/mcp-router/discussions)
+- **Documentation**: Check `/docs` folder
+
+## 🙏 Acknowledgments
+
+Built upon the foundation of the [original MCP Router](https://github.com/mcp-router/mcp-router). Special thanks to the original creators and the MCP community for their contributions.
+
+## 📄 License
+
+This project is licensed under the Sustainable Use License - see [LICENSE.md](LICENSE.md) for details.
+
+---
+
+<p align="center">
+Built with ❤️ by the MCP Router Community
+</p>

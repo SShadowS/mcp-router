@@ -762,5 +762,22 @@
     "resetError": "Failed to reset tool preferences",
     "noSearchResults": "No tools found matching your search",
     "noTools": "No tools available for this server"
+  },
+  "auth": {
+    "bearerToken": {
+      "configured": "API Token configured",
+      "required": "API Token required"
+    },
+    "oauth": {
+      "loading": "Loading OAuth status...",
+      "authenticated": "OAuth authenticated",
+      "notAuthenticated": "OAuth authentication required",
+      "expiringSoon": "OAuth token expiring soon",
+      "expiresAt": "Expires at: {{time}}",
+      "refresh": "Refresh token"
+    },
+    "none": {
+      "noAuthRequired": "No authentication required"
+    }
   }
 }

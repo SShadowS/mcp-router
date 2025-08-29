@@ -770,5 +770,22 @@
     "resetError": "ツール設定のリセットに失敗しました",
     "noSearchResults": "検索条件に一致するツールが見つかりません",
     "noTools": "このサーバーには利用可能なツールがありません"
+  },
+  "auth": {
+    "bearerToken": {
+      "configured": "APIトークン設定済み",
+      "required": "APIトークンが必要です"
+    },
+    "oauth": {
+      "loading": "OAuth状態を読み込み中...",
+      "authenticated": "OAuth認証済み",
+      "notAuthenticated": "OAuth認証が必要です",
+      "expiringSoon": "OAuthトークンの有効期限が近づいています",
+      "expiresAt": "有効期限: {{time}}",
+      "refresh": "トークンを更新"
+    },
+    "none": {
+      "noAuthRequired": "認証不要"
+    }
   }
 }

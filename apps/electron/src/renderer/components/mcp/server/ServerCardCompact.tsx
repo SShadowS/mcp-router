@@ -8,6 +8,7 @@ import { Trash, AlertCircle } from "lucide-react";
 import { cn } from "@/renderer/utils/tailwind-utils";
 import { useTranslation } from "react-i18next";
 import { hasUnsetRequiredParams } from "@/renderer/utils/server-validation-utils";
+import { AuthenticationIndicator } from "@/renderer/components/mcp/server/AuthenticationIndicator";
 
 interface ServerCardCompactProps {
   server: MCPServer;
@@ -116,6 +117,8 @@ export const ServerCardCompact: React.FC<ServerCardCompactProps> = ({
                 <AlertCircle className="h-4 w-4 text-destructive" />
               </Button>
             )}
+
+            <AuthenticationIndicator server={server} size="sm" />
 
             <Switch
               checked={server.status === "running"}

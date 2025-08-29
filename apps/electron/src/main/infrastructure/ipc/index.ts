@@ -14,6 +14,7 @@ import { setupAgentHandlers } from "./handlers/agent-handlers";
 import { setupWorkspaceHandlers } from "./handlers/workspace-handlers";
 import { setupHookHandlers } from "./handlers/hook-handler";
 import { initializeClientHandler } from "./handlers/client-handler";
+import { getOAuthHandler } from "./handlers/oauth-handler";
 
 /**
  * IPC通信ハンドラのセットアップを行う関数
@@ -67,4 +68,7 @@ export function setupIpcHandlers(): void {
 
   // クライアント管理関連
   initializeClientHandler();
+
+  // OAuth認証関連
+  getOAuthHandler();
 }

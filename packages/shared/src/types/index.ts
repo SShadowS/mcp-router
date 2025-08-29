@@ -12,6 +12,7 @@ export * from "./client-types";
 export * from "./workspace";
 export * from "./auth";
 export * from "./mcp-hook-types";
+export * from "./oauth-types";
 
 // Re-export organized domain types
 export * from "./ui";

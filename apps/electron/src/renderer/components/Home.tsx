@@ -31,6 +31,8 @@ import { Button } from "@mcp_router/ui";
 import { LoginScreen } from "@/renderer/components/auth/LoginScreen";
 import ServerDetailsAdvancedSheet from "@/renderer/components/mcp/server/server-details/ServerDetailsAdvancedSheet";
 import { ToolManagerModal } from "@/renderer/components/mcp/server/ToolManagerModal";
+import { OAuthConfigModal } from "@/renderer/components/mcp/server/OAuthConfigModal";
+import { AuthenticationIndicator } from "@/renderer/components/mcp/server/AuthenticationIndicator";
 import { useServerEditingStore } from "@/renderer/stores";
 
 const Home: React.FC = () => {
@@ -85,6 +87,12 @@ const Home: React.FC = () => {
   );
   const [isToolManagerOpen, setIsToolManagerOpen] = useState(false);
 
+  // State for OAuth Config Modal
+  const [oauthConfigServer, setOAuthConfigServer] = useState<MCPServer | null>(
+    null,
+  );
+  const [isOAuthConfigOpen, setIsOAuthConfigOpen] = useState(false);
+
   // Toggle expanded server details - open settings
   const toggleServerExpand = (serverId: string) => {
     const server = servers.find((s) => s.id === serverId);
@@ -114,6 +122,13 @@ const Home: React.FC = () => {
     e.stopPropagation();
     setToolManagerServer(server);
     setIsToolManagerOpen(true);
+  };
+
+  // Handle opening OAuth config
+  const openOAuthConfig = (server: MCPServer, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOAuthConfigServer(server);
+    setIsOAuthConfigOpen(true);
   };
 
   // Handle server removal
@@ -339,6 +354,20 @@ const Home: React.FC = () => {
                               <AlertCircle className="h-4 w-4" />
                             </button>
                           )}
+                          <AuthenticationIndicator
+                            server={server}
+                            size="sm"
+                            onAuthenticate={() =>
+                              openOAuthConfig(server, {
+                                stopPropagation: () => {},
+                              } as React.MouseEvent)
+                            }
+                            onConfigure={() =>
+                              openOAuthConfig(server, {
+                                stopPropagation: () => {},
+                              } as React.MouseEvent)
+                            }
+                          />
                           <button
                             className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-accent transition-colors"
                             onClick={(e) => openToolManager(server, e)}
@@ -562,6 +591,19 @@ const Home: React.FC = () => {
           }}
           serverId={toolManagerServer.id}
           serverName={toolManagerServer.name}
+        />
+      )}
+
+      {/* OAuth Config Modal */}
+      {oauthConfigServer && (
+        <OAuthConfigModal
+          isOpen={isOAuthConfigOpen}
+          onClose={() => {
+            setIsOAuthConfigOpen(false);
+            setOAuthConfigServer(null);
+          }}
+          serverId={oauthConfigServer.id}
+          serverName={oauthConfigServer.name}
         />
       )}
     </div>

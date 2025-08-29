@@ -27,8 +27,10 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showClientModal, setShowClientModal] = useState(false);
   const [showTokenModal, setShowTokenModal] = useState(false);
-  const [editingClient, setEditingClient] = useState<ClientWithTokens | null>(null);
-  
+  const [editingClient, setEditingClient] = useState<ClientWithTokens | null>(
+    null,
+  );
+
   const {
     clients,
     selectedClient,
@@ -44,9 +46,10 @@ export default function ClientsPage() {
     fetchClients();
   }, [fetchClients]);
 
-  const filteredClients = clients.filter((client) =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredClients = clients.filter(
+    (client) =>
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleCreateClient = () => {
@@ -65,7 +68,11 @@ export default function ClientsPage() {
   };
 
   const handleDeleteClient = async (clientId: string) => {
-    if (window.confirm("Are you sure you want to delete this client? All associated tokens will be revoked.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this client? All associated tokens will be revoked.",
+      )
+    ) {
       try {
         await deleteClient(clientId);
       } catch (err) {
@@ -113,11 +120,17 @@ export default function ClientsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Clients
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.filter(c => c.activeTokenCount && c.activeTokenCount > 0).length}
+              {
+                clients.filter(
+                  (c) => c.activeTokenCount && c.activeTokenCount > 0,
+                ).length
+              }
             </div>
           </CardContent>
         </Card>
@@ -150,7 +163,9 @@ export default function ClientsPage() {
           <Input
             placeholder="Search clients..."
             value={searchQuery}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchQuery(e.target.value)
+            }
             className="pl-10"
           />
         </div>
@@ -184,7 +199,9 @@ export default function ClientsPage() {
             <div className="text-center py-8">Loading clients...</div>
           ) : filteredClients.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {searchQuery ? "No clients found matching your search" : "No clients yet. Create your first client to get started."}
+              {searchQuery
+                ? "No clients found matching your search"
+                : "No clients yet. Create your first client to get started."}
             </div>
           ) : (
             <Table>
@@ -208,17 +225,30 @@ export default function ClientsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {client.description || <span className="text-gray-400">No description</span>}
+                      {client.description || (
+                        <span className="text-gray-400">No description</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Key className="h-4 w-4 text-gray-400" />
-                        <span>{client.activeTokenCount || 0} / {client.tokenCount || 0}</span>
+                        <span>
+                          {client.activeTokenCount || 0} /{" "}
+                          {client.tokenCount || 0}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={client.activeTokenCount && client.activeTokenCount > 0 ? "default" : "secondary"}>
-                        {client.activeTokenCount && client.activeTokenCount > 0 ? "Active" : "Inactive"}
+                      <Badge
+                        variant={
+                          client.activeTokenCount && client.activeTokenCount > 0
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {client.activeTokenCount && client.activeTokenCount > 0
+                          ? "Active"
+                          : "Inactive"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -260,12 +290,9 @@ export default function ClientsPage() {
 
       {/* Modals */}
       {showClientModal && (
-        <ClientDetailsModal
-          client={editingClient}
-          onClose={handleCloseModal}
-        />
+        <ClientDetailsModal client={editingClient} onClose={handleCloseModal} />
       )}
-      
+
       {showTokenModal && selectedClient && (
         <TokenManagementModal
           client={selectedClient}
